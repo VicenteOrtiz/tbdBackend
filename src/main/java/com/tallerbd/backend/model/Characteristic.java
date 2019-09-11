@@ -6,12 +6,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="Characteristic")
 public class Characteristic {
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
-
 }

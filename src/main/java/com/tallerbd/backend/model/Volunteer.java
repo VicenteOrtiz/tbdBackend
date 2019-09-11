@@ -15,26 +15,26 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="Voluntario")
 public class Volunteer {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
-	
-	@Column(name ="name")
-	private String name;
-	
-	@ManyToMany(cascade = CascadeType.ALL)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    
+    @Column(name ="name")
+    private String name;
+    
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "task_volunteer",
         joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "volunteer_id", referencedColumnName = "id"))
     private Set<Task> tasks;
-
-	//public Volunteer(String name, Task... tasks) {
-    //    this.name = name;
-    //    this.tasks = Stream.of(tasks).collect(Collectors.toSet());
-    //    this.tasks.forEach(x -> x.getVolunteers().add(this));
-    //}
 }

@@ -11,10 +11,16 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="Task")
 public class Task {
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
@@ -23,7 +29,7 @@ public class Task {
 	private String name;
 	
 	@ManyToMany(mappedBy = "tasks")
-    private Set<Volunteer> volunteers = new HashSet<>();
-
+	private Set<Volunteer> volunteers = new HashSet<>();
+	
 }
 
