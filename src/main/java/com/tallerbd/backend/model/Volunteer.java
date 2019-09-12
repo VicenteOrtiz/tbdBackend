@@ -31,6 +31,15 @@ public class Volunteer {
     
     @Column(name ="name")
     private String name;
+
+    @Column(name = "lastname")
+    private String lastname;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "gender")
+    private String gender;
     
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "task_volunteer",
