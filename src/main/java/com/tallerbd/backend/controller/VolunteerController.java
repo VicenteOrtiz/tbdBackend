@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/volunteer")
 public class VolunteerController {
-    //para añadir una ruta agregar @GetMapping(), @PostMapping(), etc, con su respectiva
-    //dependencia. ver usuarioController.
-
     @Autowired
     private VolunteerRepository volunteerRepository;
 
@@ -38,7 +35,6 @@ public class VolunteerController {
 
             int i = 0;
             while ((strCurrentLine = objReader.readLine()) != null) {
-                // System.out.println(strCurrentLine);
                 if(i !=0){
                     String[] splitedLine = strCurrentLine.split(",");
                     Volunteer volunteer = new Volunteer();
