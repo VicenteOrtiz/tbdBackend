@@ -12,53 +12,66 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.tallerbd.backend.model.Role;
 import com.tallerbd.backend.model.Usuario;
+import com.tallerbd.backend.repository.RoleRepository;
 import com.tallerbd.backend.repository.UsuarioRepository;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 	
-	@Autowired
+	//@Autowired
 	private UsuarioRepository usuarioRepository;
+
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+	public UsuarioController(UsuarioRepository usuarioRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+		this.usuarioRepository = usuarioRepository;
+		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+	}
 	
 	@GetMapping()
-	public List<Usuario> getUsuarios(){
+	public List<Usuario> getAll(){
 		return usuarioRepository.findAll();
 	}
 
 	@GetMapping("/{id}")
-	public Usuario getByIdUsuario(@PathVariable int id) {
+	public Usuario getById(@PathVariable int id) {
 		return usuarioRepository.findById(id).get();
+	}
+
+	@GetMapping("/{email}")
+	public Usuario getByEmail(@PathVariable String email) {
+		return usuarioRepository.findByEmail(email);
 	}
 	
 	@PostMapping()
-	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public Usuario createUsuario(@RequestBody Usuario usuario, BindingResult result) {
+	public Usuario createUsuario(@RequestBody Usuario usuario) {
+		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
 		return usuarioRepository.save(usuario);
 	}
 	
 	@PutMapping("/{id}")
-	public Usuario updateUsuario(@PathVariable int id, @RequestBody Usuario usuario, BindingResult result) {
-		Usuario c = usuarioRepository.findById(id).get();
-		
-		if(c != null) {
-			c.setNombre(usuario.getNombre());
-			c.setEmail(usuario.getEmail());
-			
-			return usuarioRepository.save(c);
-		}
-		return null;	
+	public Usuario update(@PathVariable int id, @RequestBody Usuario newUsuario, BindingResult result) {
+		return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    usuario.setFrom( newUsuario );
+                    return usuarioRepository.save( usuario );
+                })
+                .orElse(null);
 	}
 	
 	@DeleteMapping("/{id}")
-	public void deleteUsuario(@PathVariable int id) {
+	public void delete(@PathVariable int id) {
 		usuarioRepository.deleteById(id);
 	}
 }
