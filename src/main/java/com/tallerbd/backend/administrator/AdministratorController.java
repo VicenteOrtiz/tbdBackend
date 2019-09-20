@@ -33,16 +33,24 @@ public class AdministratorController{
         }
     }
     
-    @GetMapping("/users/{id}")
-    public ResponseEntity setAdminRoleToUser(@PathVariable Long id){
-        User target = userRepository.findById(id).get();
+    @GetMapping("/set/{user_id}")
+    public ResponseEntity setAdminRoleToUser(@PathVariable Long user_id){
+        User target = userRepository.findById(user_id).get();
 
         checkOrCreateAdminRole();
 
         Role admin = roleRepository.findByName("admin");
         target.setRole(admin);
-        userRepository.save(target);
         
-        return new ResponseEntity<>(target, HttpStatus.OK);
+        return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
+    }
+
+    @GetMapping("/revoke/{user_id}")
+    public ResponseEntity revokeAdminToUser(@PathVariable Long user_id){
+        User target = userRepository.findById(user_id).get();
+
+        target.setRole(null);
+        
+        return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
     }
 }
