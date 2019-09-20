@@ -1,4 +1,4 @@
-package com.tallerbd.backend.model;
+package com.tallerbd.backend.user;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tallerbd.backend.role.Role;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -25,14 +26,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="Usuario")
-public class Usuario {
+@Table(name="usuario")
+public class User {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;	
+	private Long id;
 	
-	@Column(name="nombre")
-	private String nombre;
+	@Column(name="firstname")
+	private String firstname;
+
+	@Column(name="lastname")
+	private String lastname;
 	
 	@Column(name="email", unique = true)
 	private String email;
@@ -40,21 +45,15 @@ public class Usuario {
 	@Column(name = "password")
 	private String password;
 
-	// @ManyToOne(cascade = {CascadeType.ALL})
-	// @JsonIgnore
-	// @JoinColumn(name="role_id")
-	// private Role role;
+	@ManyToOne
+	@JoinColumn(name="role_id")
+	private Role role = null;
 
-	public Usuario(String nombre, String email, String password){
-		this.nombre = nombre;
-		this.email = email;
-		this.password = password;
-	}
-
-	public void setFrom(Usuario newUser){
-		this.nombre = newUser.getNombre();
+	public void setFrom(User newUser){
+		this.firstname = newUser.getFirstname();
+		this.lastname = newUser.getLastname();
 		this.email = newUser.getEmail();
 		this.password = newUser.getPassword();
-		//this.role = newUser.getRole();
+		this.role = newUser.getRole();
 	}
 }
