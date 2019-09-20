@@ -45,6 +45,17 @@ public class RoleController {
 			return new ResponseEntity<>(target, HttpStatus.OK);
 		}
 	}
+
+	@GetMapping("/name/{role_name}")
+	@ResponseBody
+	public ResponseEntity getByName(@PathVariable String role_name) {
+		Role target = roleRepository.findByName(role_name);
+		if( target == null ){
+			return new ResponseEntity<>("Role not Found", HttpStatus.BAD_REQUEST);
+		}else{
+			return new ResponseEntity<>(target, HttpStatus.OK);
+		}
+	}
 	
 	@PostMapping()
 	@ResponseBody

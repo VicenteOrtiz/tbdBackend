@@ -33,6 +33,7 @@ public class Role {
 	private String name;
 
 	@OneToMany(mappedBy = "role")
+	@JsonIgnore
 	private List<User> users = new ArrayList<>();
 
 	// public void setFrom(Role role){
