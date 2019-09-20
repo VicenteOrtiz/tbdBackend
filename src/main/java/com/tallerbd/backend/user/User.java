@@ -10,9 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tallerbd.backend.coordinator.Coordinator;
 import com.tallerbd.backend.role.Role;
 
 import org.hibernate.annotations.OnDelete;
@@ -48,6 +51,10 @@ public class User {
 	@ManyToOne
 	@JoinColumn(name="role_id")
 	private Role role = null;
+
+	@OneToOne(mappedBy = "user")
+	@JsonIgnore
+	private Coordinator coordinator;
 
 	public void setFrom(User newUser){
 		this.firstname = newUser.getFirstname();
