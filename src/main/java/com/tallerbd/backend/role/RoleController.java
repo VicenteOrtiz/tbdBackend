@@ -56,6 +56,15 @@ public class RoleController {
 			return new ResponseEntity<>(target, HttpStatus.OK);
 		}
 	}
+
+	@GetMapping("/revoke/{user_id}")
+    public ResponseEntity revokeRoleToUser(@PathVariable Long user_id){
+        User target = userRepository.findById(user_id).get();
+
+        target.setRole(null);
+        
+        return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
+    }
 	
 	@PostMapping()
 	@ResponseBody
