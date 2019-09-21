@@ -18,8 +18,7 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-	
-	//@Autowired
+
 	private final UserRepository userRepository;
 
 	private final RoleRepository roleRepository;
@@ -30,13 +29,11 @@ public class UserController {
 	}
 	
 	@GetMapping()
-	@ResponseBody
 	public ResponseEntity getAll(){
 		return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
-	@ResponseBody
 	public ResponseEntity getById(@PathVariable Long id) {
 		User target = userRepository.findById(id).get();
         if( target == null ){
@@ -46,25 +43,26 @@ public class UserController {
         }
 	}
 
-	@GetMapping("/{user_id}/roles/{role_id}")
-	@ResponseBody
-	public ResponseEntity setRoleToUser(@PathVariable Long user_id, @PathVariable Long role_id){
-		Role targetRole = roleRepository.findById(role_id).get();
-		User targetUser = userRepository.findById(user_id).get();
+	@GetMapping("/{user_id}/roles/{role_name}")
+	public ResponseEntity setRoleToUser(@PathVariable Long user_id, @PathVariable String role_name){		
+		Role targetRole = roleRepository.findByName(role_name);
 
-		if(targetRole != null && targetUser != null){
-			//targetRole.getUsers().add(targetRole);
-			targetUser.setRole(targetRole);
-			userRepository.save(targetUser);
-			//return new ResponseEntity<>("User with email " + targetUser.getEmail() + " now have Role " + targetRole.getName(), HttpStatus.OK);
-			return new ResponseEntity<>(userRepository.findById(user_id), HttpStatus.OK);
+		if( targetRole == null ){
+			return new ResponseEntity<>("Role does not exist", HttpStatus.BAD_REQUEST);
 		}else{
-			return new ResponseEntity<>("User or Role does not exist", HttpStatus.BAD_REQUEST);
+			User targetUser = userRepository.findById(user_id).get();
+
+			if( targetUser == null ){
+				return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);	
+			}else{
+				targetUser.setRole(targetRole);
+				userRepository.save(targetUser);
+				return new ResponseEntity<>(userRepository.findById(user_id), HttpStatus.OK);	
+			}
 		}
 	}
 
 	@GetMapping("/{id}/role")
-	@ResponseBody
 	public ResponseEntity getUserRole(@PathVariable Long id){
 		User target = userRepository.findById(id).get();
 		if(target == null){
@@ -78,7 +76,6 @@ public class UserController {
 	}
 	
 	@PostMapping()
-	@ResponseBody
 	public ResponseEntity create(@RequestBody User user) {
 		if( userRepository.findByEmail( user.getEmail() ) == null ){
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
@@ -88,7 +85,6 @@ public class UserController {
 	}
 	
 	@PostMapping("/{id}")
-	@ResponseBody
 	public ResponseEntity update(@PathVariable Long id, @RequestBody User newUser) {
 		User target = userRepository.findById(id).get();
         if( target == null ){
@@ -104,7 +100,6 @@ public class UserController {
 	}
 	
 	@DeleteMapping("/{id}")
-	@ResponseBody
 	public ResponseEntity delete(@PathVariable Long id) {
 		if( userRepository.findById(id) == null ){
             return new ResponseEntity<>("User not Found", HttpStatus.BAD_REQUEST);

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/admin")
@@ -23,6 +26,13 @@ public class AdministratorController{
 	public AdministratorController(UserRepository userRepository, RoleRepository roleRepository) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
+    }
+
+    @GetMapping()
+    public ResponseEntity getAllAdmin(){
+        Role admin = roleRepository.findByName("admin");
+        return new ResponseEntity<>( admin.getUsers() , HttpStatus.OK);
+
     }
 
     private void checkOrCreateAdminRole(){
@@ -44,4 +54,17 @@ public class AdministratorController{
         
         return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
     }
+
+    @PostMapping()
+    public ResponseEntity createAdmin(@RequestBody User user){
+        if( userRepository.findByEmail( user.getEmail() ) == null ){
+            checkOrCreateAdminRole();
+            Role admin = roleRepository.findByName("admin");
+            user.setRole(admin);
+            return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+        }else{
+            return new ResponseEntity<>("An User with that email already exist", HttpStatus.BAD_REQUEST);
+        }
+    }
+    
 }
