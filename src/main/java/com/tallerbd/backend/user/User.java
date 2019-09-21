@@ -50,7 +50,7 @@ public class User {
 
 	@ManyToOne
 	@JoinColumn(name="role_id")
-	private Role role = null;
+	private Role role;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	@JsonIgnore
