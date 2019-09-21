@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/coordinators")
 public class CoordinatorController{
+
+	private final String roleName = "coordinator";
 	
 	private final CoordinatorRepository coordinatorRepository;
 
@@ -31,72 +33,68 @@ public class CoordinatorController{
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 	}
-	
-	@GetMapping()
-	@ResponseBody
-	public ResponseEntity getAll(){
-		return new ResponseEntity<>(coordinatorRepository.findAll(), HttpStatus.OK);
-	}
-	
-	@GetMapping("/{id}")
-	@ResponseBody
-	public ResponseEntity getById(@PathVariable Long id) {
-		Coordinator target = coordinatorRepository.findById(id).get();
-		if( target == null ){
-			return new ResponseEntity<>("Role not Found", HttpStatus.BAD_REQUEST);
-		}else{
-			return new ResponseEntity<>(target, HttpStatus.OK);
-		}
-	}
 
 	private void checkOrCreateCoordinatorRole(){
-        if( roleRepository.findByName("coordinator") == null ){
+        if( roleRepository.findByName(this.roleName) == null ){
             Role coordinator = new Role();
-            coordinator.setName("coordinator");
+            coordinator.setName(this.roleName);
             roleRepository.save(coordinator);
         }
     }
 	
-	@PostMapping("/users/{id}")
-	@ResponseBody
-	public ResponseEntity create(@RequestBody Coordinator coordinator, @PathVariable Long id){
+	@GetMapping()
+	public ResponseEntity getAllCoordinator(){
+		return new ResponseEntity<>(coordinatorRepository.findAll(), HttpStatus.OK);
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity getCoordinatorById(@PathVariable Long id) {
+		Coordinator target = coordinatorRepository.findById(id).get();
+        if( target == null ){
+            return new ResponseEntity<>("Coordinator not found", HttpStatus.BAD_REQUEST);
+        }else{
+            return new ResponseEntity<>(target, HttpStatus.OK);
+        }
+	}
+	
+	@PostMapping("/user/{user_id}")
+	public ResponseEntity createCoordinator(@RequestBody Coordinator coordinator, @PathVariable Long user_id){
         if( coordinatorRepository.findByInstitution( coordinator.getInstitution() ) == null ){
 
-			User target = userRepository.findById(id).get();
+			User target = userRepository.findById(user_id).get();
 
 			checkOrCreateCoordinatorRole();
-			target.setRole( roleRepository.findByName("coordinator") );
+			target.setRole( roleRepository.findByName(this.roleName) );
 
 			target.setCoordinator( coordinator );
 			coordinator.setUser( target );
 
 			coordinatorRepository.save( coordinator );
-
-			return new ResponseEntity<>( userRepository.save( target ), HttpStatus.CREATED);
+			userRepository.save( target );
+			
+			return new ResponseEntity<>( coordinator, HttpStatus.CREATED);
 		}else{
 			return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
 		}
 	}
 	
 	@PostMapping("/{id}")
-	@ResponseBody
-	public ResponseEntity update(@RequestBody Coordinator newCoordinator, @PathVariable Long id){
-		Coordinator target = coordinatorRepository.findById(id).get();
-		if( target == null ){
-			return new ResponseEntity<>("Coordinator not Found", HttpStatus.BAD_REQUEST);
-		}else{
-			if( coordinatorRepository.findByInstitution( newCoordinator.getInstitution() ) != null ){
-				return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
+	public ResponseEntity updateCoordinator(@RequestBody Coordinator newCoordinator, @PathVariable Long id){
+		if( coordinatorRepository.findByInstitution( newCoordinator.getInstitution() ) == null ){
+			Coordinator target = coordinatorRepository.findById(id).get();
+			if( target == null ){
+				return new ResponseEntity<>("Coordinator not Found", HttpStatus.BAD_REQUEST);
 			}else{
 				target.setFrom(newCoordinator);
 				return new ResponseEntity<>(coordinatorRepository.save(target), HttpStatus.CREATED);
 			}
+		}else{
+			return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
 		}
 	}
 	
 	@DeleteMapping("/{id}")
-	@ResponseBody
-	public ResponseEntity delete(@PathVariable Long id){
+	public ResponseEntity deleteCoordinator(@PathVariable Long id){
 		if( coordinatorRepository.findById(id) == null ){
 			return new ResponseEntity<>("Coordinator not Found", HttpStatus.BAD_REQUEST);
 		}else{

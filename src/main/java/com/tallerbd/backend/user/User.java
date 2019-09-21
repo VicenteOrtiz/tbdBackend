@@ -52,7 +52,7 @@ public class User {
 	@JoinColumn(name="role_id")
 	private Role role = null;
 
-	@OneToOne(mappedBy = "user")
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	@JsonIgnore
 	private Coordinator coordinator;
 
