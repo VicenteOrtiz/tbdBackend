@@ -51,9 +51,9 @@ public class User {
 	@ManyToOne
 	@JoinColumn(name="role_id")
 	private Role role;
-
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	@JsonIgnore
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "coordinator_id")
 	private Coordinator coordinator;
 
 	public void setFrom(User newUser){

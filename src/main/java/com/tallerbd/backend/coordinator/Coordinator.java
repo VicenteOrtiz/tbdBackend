@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.user.User;
 
 import lombok.AllArgsConstructor;
@@ -29,9 +30,10 @@ public class Coordinator{
 
 	@Column(name = "institution", unique = true)
 	private String institution;
-
-	@OneToOne(cascade = CascadeType.ALL)
+	
+	@OneToOne(mappedBy = "coordinator", cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_id")
+	@JsonIgnore
 	private User user;
 
 	public void setFrom(Coordinator coordinator){

@@ -90,6 +90,7 @@ public class UserController {
 		if( userRepository.findByEmail( user.getEmail() ) == null ){
 			checkOrCreateDefaultRole();
 			user.setRole( roleRepository.findByName(this.defaultRole) );
+			user.setCoordinator(null);
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
         }else{
             return new ResponseEntity<>("An User with that email already exist", HttpStatus.BAD_REQUEST);
@@ -102,6 +103,9 @@ public class UserController {
         if( target == null ){
             return new ResponseEntity<>("User not Found", HttpStatus.BAD_REQUEST);
         }else{
+
+			// Change from here to update per atribute in the future
+
             if( userRepository.findByEmail( newUser.getEmail() ) != null ){
                 return new ResponseEntity<>("An User with that email already exist", HttpStatus.BAD_REQUEST);
             }else{

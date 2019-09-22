@@ -43,17 +43,25 @@ public class CoordinatorController{
     }
 	
 	@GetMapping()
-	public ResponseEntity getAllCoordinator(){
-		return new ResponseEntity<>(coordinatorRepository.findAll(), HttpStatus.OK);
+	public ResponseEntity getAllCoordinators(){
+		checkOrCreateCoordinatorRole();
+		Role coordinator = roleRepository.findByName(this.roleName);
+		return new ResponseEntity<>(coordinator.getUsers(), HttpStatus.OK);
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity getCoordinatorById(@PathVariable Long id) {
-		Coordinator target = coordinatorRepository.findById(id).get();
+	@GetMapping("/{user_id}")
+	public ResponseEntity getCoordinatorById(@PathVariable Long user_id) {
+		User target = userRepository.findById(user_id).get();
         if( target == null ){
-            return new ResponseEntity<>("Coordinator not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User Coordinator not found", HttpStatus.BAD_REQUEST);
         }else{
-            return new ResponseEntity<>(target, HttpStatus.OK);
+			Role coordinator = roleRepository.findByName(this.roleName);
+
+            if( target.getRole().getId() == coordinator.getId() ){
+				return new ResponseEntity<>(target, HttpStatus.OK);
+			}else{
+				return new ResponseEntity<>("User does not have " + this.roleName + " role", HttpStatus.BAD_REQUEST);
+			}
         }
 	}
 	
@@ -65,14 +73,15 @@ public class CoordinatorController{
 
 			checkOrCreateCoordinatorRole();
 			target.setRole( roleRepository.findByName(this.roleName) );
-
 			target.setCoordinator( coordinator );
+
 			coordinator.setUser( target );
 
-			coordinatorRepository.save( coordinator );
-			userRepository.save( target );
+			//userRepository.save( target );
+
+			//coordinatorRepository.save( coordinator );
 			
-			return new ResponseEntity<>( coordinator, HttpStatus.CREATED);
+			return new ResponseEntity<>( userRepository.save( target ) , HttpStatus.CREATED);
 		}else{
 			return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
 		}
@@ -86,7 +95,8 @@ public class CoordinatorController{
 				return new ResponseEntity<>("Coordinator not Found", HttpStatus.BAD_REQUEST);
 			}else{
 				target.setFrom(newCoordinator);
-				return new ResponseEntity<>(coordinatorRepository.save(target), HttpStatus.CREATED);
+				coordinatorRepository.save(target);
+				return new ResponseEntity<>( target.getUser() , HttpStatus.CREATED);
 			}
 		}else{
 			return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
