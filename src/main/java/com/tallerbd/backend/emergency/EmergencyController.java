@@ -1,5 +1,6 @@
 package com.tallerbd.backend.emergency;
 
+import com.tallerbd.backend.form.Form;
 import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.form.FormRequirementRepository;
 import com.tallerbd.backend.task.Task;
@@ -7,6 +8,7 @@ import com.tallerbd.backend.task.TaskRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/emergencies")
 public class EmergencyController{
@@ -54,19 +57,24 @@ public class EmergencyController{
         emergency.setTitle( emergencyDTO.getTitle() );
         emergency.setInCharge( emergencyDTO.getInCharge() );
         emergency.setLocation( emergencyDTO.getLocation() );
+        
         emergencyRepository.save(emergency);
 
         // link and save tasks
-        for( Task tarea : emergencyDTO.getTasks() ){
-            emergency.getTasks().add( tarea );
-            taskRepository.save(tarea);
+        for( Task task : emergencyDTO.getTasks() ){
+            emergency.getTasks().add( task );
+            task.setEmergency(emergency);
+            taskRepository.save(task);
         }
 
+        emergency.setForm(null);
+
         // link and save formRequirements
-        for( FormRequirement requirement : emergencyDTO.getFormRequirements() ){
-            emergency.getFormRequirements().add( requirement );
-            formRequirementRepository.save(requirement);
-        }
-        return new ResponseEntity<>( emergencyRepository.save(emergency), HttpStatus.OK);
+        // for( FormRequirement requirement : emergencyDTO.getFormRequirements() ){
+        //     emergency.getFormRequirements().add( requirement );
+        //     formRequirementRepository.save(requirement);
+        // }
+        //return new ResponseEntity<>( emergencyRepository.save(emergency), HttpStatus.OK);
+        return new ResponseEntity<>( emergency, HttpStatus.OK);
     }
 }

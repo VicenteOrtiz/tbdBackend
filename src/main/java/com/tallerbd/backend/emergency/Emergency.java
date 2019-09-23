@@ -9,8 +9,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tallerbd.backend.form.Form;
 import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.task.Task;
 
@@ -47,6 +50,6 @@ public class Emergency{
     @OneToMany(mappedBy = "emergency")
     private List<Task> tasks = new ArrayList<>();
     
-    @OneToMany(mappedBy = "emergency")
-    private List<FormRequirement> formRequirements = new ArrayList<>();
+    @OneToOne(mappedBy = "emergency")
+    private Form form;
 }
