@@ -36,6 +36,10 @@ public class Login{
     @Column(name = "loginStatus")
     private Boolean loginStatus;
 
+    public Login(){
+        super();
+     }
+
     public Login(String timestamp, User user, Boolean loginStatus){
         this.timestamp = timestamp;
         this.user = user;
@@ -52,6 +56,14 @@ public class Login{
 
     public void setLoginStatus(Boolean loginStatus){
         this.loginStatus = loginStatus;
+    }
+
+    public User getUser(){
+        return this.user;
+    }
+
+    public Boolean getLoginStatus(){
+        return this.loginStatus;
     }
 
     

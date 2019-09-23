@@ -64,7 +64,7 @@ public class User {
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "volunteer_id")
 	private Volunteer volunteer;
-	
+
 	@OneToMany(mappedBy = "user")
 	@JsonIgnore
 	private List<Login> logins = new ArrayList<>();
@@ -83,5 +83,9 @@ public class User {
 
 	public String getEmail(){
 		return this.email;
+	}
+
+	public Long getId(){
+		return this.id;
 	}
 }

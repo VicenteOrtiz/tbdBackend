@@ -8,4 +8,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface LoginRepository extends CrudRepository<Login, Long>{
     List<Login> findAll();
+    Login findTopByOrderByIdDesc();
 }

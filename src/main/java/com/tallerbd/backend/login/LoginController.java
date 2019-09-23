@@ -22,6 +22,7 @@ public class LoginController {
     private LoginRepository loginRepository;
 
 
+    //AQUI ES DONDE SUCEDE LA MAGIA DEL LOGIN, FALTA VALIDAR QUE NO HAYA UN USUARIO LOGEADO YA.
     @RequestMapping(value="/login", method = RequestMethod.GET)
     public ResponseEntity login(@RequestBody User user){
 
@@ -45,6 +46,32 @@ public class LoginController {
             return new ResponseEntity<>("Contraseña o Usuario incorrecto", HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    //ESTE MÉTODO RETORNA EL ÚLTIMO USUARIO ACTUALMENTE LOGEADO, Y SI NO ESTÁ LOGEADO RETORNA -99999999.
+    @RequestMapping(value="/login/last", method = RequestMethod.GET)
+    public Long getLoggedInUser(){
+        Login lastLogin = loginRepository.findTopByOrderByIdDesc();
+        //Long lastUserLoggedInId;
+        User lastUserLoggedIn;
+        Long error = new Long(-999999999);
+        
+        if(lastLogin.getLoginStatus()==true){
+            lastUserLoggedIn = lastLogin.getUser();
+            return lastUserLoggedIn.getId();
+        }else{
+            return error;
+        }
+    }
+
+    //este metodo hace el logout, pero le faltan casos bordes y validaciones
+    //hay que ver primero que haya una cuenta para hacer logout.
+    @RequestMapping(value="/logout", method = RequestMethod.GET)
+    public ResponseEntity logOut(){
+        Login lastLogin = loginRepository.findTopByOrderByIdDesc();
+        lastLogin.setLoginStatus(false);
+        loginRepository.save(lastLogin);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
