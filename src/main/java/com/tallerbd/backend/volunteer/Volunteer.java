@@ -2,6 +2,7 @@ package com.tallerbd.backend.volunteer;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class Volunteer{
     private int gender;
 
     @Column(name = "birth")
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yy-MM-dd")
     private LocalDate birth;
 
     @Column(name = "latitude")
@@ -63,5 +64,9 @@ public class Volunteer{
     
     public int getAge() {
         return Period.between(this.getBirth(), LocalDate.now()).getYears();
+    }
+
+    public void setBirth(String birth){
+        this.birth = LocalDate.parse(birth, DateTimeFormatter.ofPattern("yy-MM-dd"));
     }
 }

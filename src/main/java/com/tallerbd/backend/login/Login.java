@@ -36,9 +36,9 @@ public class Login{
     @Column(name = "loginStatus")
     private Boolean loginStatus;
 
-    public Login(){
-        super();
-     }
+    // public Login(){
+    //     super();
+    //  }
 
     public Login(String timestamp, User user, Boolean loginStatus){
         this.timestamp = timestamp;
