@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="formRequirement")
-public class FormRequirement{
+@Table(name="formEquipment")
+public class FormEquipment{
     
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,12 +29,6 @@ public class FormRequirement{
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "minRange")
-    private String minRange;
-
-    @Column(name = "maxRange")
-    private String maxRange;
 
     @ManyToOne
     @JoinColumn(name="form_id")
