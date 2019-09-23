@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.coordinator.Coordinator;
 import com.tallerbd.backend.role.Role;
+import com.tallerbd.backend.volunteer.Volunteer;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -55,6 +56,10 @@ public class User {
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "coordinator_id")
 	private Coordinator coordinator;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "volunteer_id")
+	private Volunteer volunteer;
 
 	public void setFrom(User newUser){
 		this.firstname = newUser.getFirstname();
