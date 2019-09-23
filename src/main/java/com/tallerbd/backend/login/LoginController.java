@@ -31,27 +31,54 @@ public class LoginController {
 
         User userToBeUsed = userRepository.findByEmail(typedEmail);
 
-        if(userToBeUsed == null){
-            return new ResponseEntity<>("ingresa un correo idoneo xfa",HttpStatus.BAD_REQUEST);
-        }
+        Login lastLogin = loginRepository.findTopByOrderByIdDesc(); //ESTO RETORNA EL ÚLTIMO ELEMENTO DE LA TABLA LOGIN
 
-        if(typedPassword.compareTo(userToBeUsed.getPassword()) == 0){ //SI ES 0 SE CUMPLE 
-
-            Login login = new Login("NOW()", userToBeUsed, true); 
-            loginRepository.save(login);
-            
-
-            return new ResponseEntity<>("Login correcto", HttpStatus.OK);
+        if(lastLogin!=null){
+            if(lastLogin.getLoginStatus()==true){
+                return new ResponseEntity<>("Ya hay un usuario logueado, porfavor cierra sesión antes de iniciar sesión",HttpStatus.BAD_REQUEST);
+            }else{
+                if(userToBeUsed == null){
+                    return new ResponseEntity<>("Contraseña o Usuario incorrecto(correo)",HttpStatus.BAD_REQUEST);
+                }
+        
+                if(typedPassword.compareTo(userToBeUsed.getPassword()) == 0){ //SI ES 0 SE CUMPLE 
+        
+                    Login login = new Login("NOW()", userToBeUsed, true); 
+                    loginRepository.save(login);
+                    
+        
+                    return new ResponseEntity<>("Login correcto", HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>("Contraseña o Usuario incorrecto", HttpStatus.BAD_REQUEST);
+                }
+            }
         }else{
-            return new ResponseEntity<>("Contraseña o Usuario incorrecto", HttpStatus.BAD_REQUEST);
+            if(userToBeUsed == null){
+                return new ResponseEntity<>("Contraseña o Usuario incorrecto(correo)",HttpStatus.BAD_REQUEST);
+            }
+    
+            if(typedPassword.compareTo(userToBeUsed.getPassword()) == 0){ //SI ES 0 SE CUMPLE 
+    
+                Login login = new Login("NOW()", userToBeUsed, true); 
+                loginRepository.save(login);
+                
+    
+                return new ResponseEntity<>("Login correcto", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Contraseña o Usuario incorrecto", HttpStatus.BAD_REQUEST);
+            }
         }
+
+        
+
+        
 
     }
 
     //ESTE MÉTODO RETORNA EL ÚLTIMO USUARIO ACTUALMENTE LOGEADO, Y SI NO ESTÁ LOGEADO RETORNA -99999999.
     @RequestMapping(value="/login/last", method = RequestMethod.GET)
     public Long getLoggedInUser(){
-        Login lastLogin = loginRepository.findTopByOrderByIdDesc();
+        Login lastLogin = loginRepository.findTopByOrderByIdDesc(); //ESTO RETORNA EL ÚLTIMO ELEMENTO DE LA TABLA LOGIN
         //Long lastUserLoggedInId;
         User lastUserLoggedIn;
         Long error = new Long(-999999999);
