@@ -65,25 +65,39 @@ public class CoordinatorController{
         }
 	}
 	
-	@PostMapping("/user/{user_id}")
-	public ResponseEntity createCoordinator(@RequestBody Coordinator coordinator, @PathVariable Long user_id){
-        if( coordinatorRepository.findByInstitution( coordinator.getInstitution() ) == null ){
+	@PostMapping()
+	public ResponseEntity createCoordinator(@RequestBody CoordinatorDTO coordinatorDTO){
+		if( userRepository.findByEmail( coordinatorDTO.getEmail() ) == null ){
+			if( coordinatorRepository.findByInstitution( coordinatorDTO.getInstitution() ) == null ){
 
-			User target = userRepository.findById(user_id).get();
+				User user = new User();
 
-			checkOrCreateCoordinatorRole();
-			target.setRole( roleRepository.findByName(this.roleName) );
-			target.setCoordinator( coordinator );
+				// set base user atributes
+				user.setFirstname( coordinatorDTO.getFirstname() );
+				user.setLastname( coordinatorDTO.getLastname() );
+				user.setEmail( coordinatorDTO.getEmail() );
+				user.setPassword( coordinatorDTO.getPassword() );
+				
+				// set volunteer role
+				checkOrCreateCoordinatorRole();
+				user.setRole( roleRepository.findByName(this.roleName) );
 
-			coordinator.setUser( target );
+				// new coordinator
+				Coordinator coordinator = new Coordinator();
+				coordinator.setInstitution( coordinatorDTO.getInstitution() );
 
-			//userRepository.save( target );
+				user.setCoordinator( coordinator );
+				coordinator.setUser( user );
 
-			//coordinatorRepository.save( coordinator );
-			
-			return new ResponseEntity<>( userRepository.save( target ) , HttpStatus.CREATED);
+				// set null volunteer because role
+				user.setVolunteer( null );
+				
+				return new ResponseEntity<>( userRepository.save( user ) , HttpStatus.CREATED);
+			}else{
+				return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
+			}
 		}else{
-			return new ResponseEntity<>("A coordinator in that institution already exist", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("A user with that email already exist", HttpStatus.BAD_REQUEST);			
 		}
 	}
 	

@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 @RequestMapping("/users")
 public class UserController {
 
-	private final String defaultRole = "not_asigned";
+	private final String defaultRole = "not_assigned";
 
 	private final UserRepository userRepository;
 
@@ -53,44 +53,13 @@ public class UserController {
         }
 	}
 
-	// @GetMapping("/{user_id}/roles/{role_name}")
-	// public ResponseEntity setRoleToUser(@PathVariable Long user_id, @PathVariable String role_name){		
-	// 	Role targetRole = roleRepository.findByName(role_name);
-
-	// 	if( targetRole == null ){
-	// 		return new ResponseEntity<>("Role does not exist", HttpStatus.BAD_REQUEST);
-	// 	}else{
-	// 		User targetUser = userRepository.findById(user_id).get();
-
-	// 		if( targetUser == null ){
-	// 			return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);	
-	// 		}else{
-	// 			targetUser.setRole(targetRole);
-	// 			userRepository.save(targetUser);
-	// 			return new ResponseEntity<>(userRepository.findById(user_id), HttpStatus.OK);	
-	// 		}
-	// 	}
-	// }
-
-	// @GetMapping("/{id}/role")
-	// public ResponseEntity getUserRole(@PathVariable Long id){
-	// 	User target = userRepository.findById(id).get();
-	// 	if(target == null){
-	// 		return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-	// 	}else{
-	// 		if( target.getRole() == null ){
-	// 			return new ResponseEntity<>("User without role", HttpStatus.BAD_REQUEST);
-	// 		}
-	// 		return new ResponseEntity<>(target.getRole(), HttpStatus.OK);
-	// 	}
-	// }
-	
 	@PostMapping()
 	public ResponseEntity createUser(@RequestBody User user) {
 		if( userRepository.findByEmail( user.getEmail() ) == null ){
 			checkOrCreateDefaultRole();
 			user.setRole( roleRepository.findByName(this.defaultRole) );
 			user.setCoordinator(null);
+			user.setVolunteer(null);
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
         }else{
             return new ResponseEntity<>("An User with that email already exist", HttpStatus.BAD_REQUEST);
