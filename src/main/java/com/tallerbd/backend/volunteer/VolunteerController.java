@@ -1,5 +1,9 @@
 package com.tallerbd.backend.volunteer;
 
+import com.tallerbd.backend.dimension.Dimension;
+import com.tallerbd.backend.dimension.DimensionRepository;
+import com.tallerbd.backend.requirement.Requirement;
+import com.tallerbd.backend.requirement.RequirementRepository;
 import com.tallerbd.backend.role.Role;
 import com.tallerbd.backend.role.RoleRepository;
 import com.tallerbd.backend.user.User;
@@ -27,11 +31,21 @@ public class VolunteerController{
 	private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
+
+    private final DimensionRepository dimensionRepository;
+
+    private final RequirementRepository requirementRepository;
     
-    public VolunteerController ( VolunteerRepository volunteerRepository, UserRepository userRepository, RoleRepository roleRepository){
+    public VolunteerController ( VolunteerRepository volunteerRepository,
+        UserRepository userRepository,
+        RoleRepository roleRepository,
+        DimensionRepository dimensionRepository,
+        RequirementRepository requirementRepository){
 		this.volunteerRepository = volunteerRepository;
 		this.userRepository = userRepository;
-		this.roleRepository = roleRepository;
+        this.roleRepository = roleRepository;
+        this.dimensionRepository = dimensionRepository;
+        this.requirementRepository = requirementRepository;
     }
     
     private void checkOrCreateVolunteerRole(){
@@ -97,6 +111,20 @@ public class VolunteerController{
 
             // set volunteer to user
             user.setVolunteer( volunteer );
+
+            userRepository.save( user );
+
+            // link and save dimensions
+            for( Dimension dimensions : volunteerDTO.getDimensions() ){
+                volunteer.getDimensions().add( dimensions );
+                dimensionRepository.save( dimensions );
+            }
+
+            // link and save requirements
+            for( Requirement requirement : volunteerDTO.getRequirements() ){
+                volunteer.getRequirements().add( requirement );
+                requirementRepository.save( requirement );
+            }
 
 			return new ResponseEntity<>( userRepository.save( user ) , HttpStatus.CREATED);
 		}else{

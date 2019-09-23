@@ -26,8 +26,7 @@ public class VolunteerDTO extends UserDTO{
 
     private Float longitude;
 
-    private HashMap<Integer, Dimension> dimensions = new LinkedHashMap<>();
-    //private String dimensions;
+    private List<Dimension> dimensions = new ArrayList<>();
 
     private List<Requirement> requirements = new ArrayList<>();
 }
