@@ -1,5 +1,8 @@
 package com.tallerbd.backend.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +19,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.coordinator.Coordinator;
+import com.tallerbd.backend.login.Login;
 import com.tallerbd.backend.role.Role;
 import com.tallerbd.backend.volunteer.Volunteer;
 
@@ -60,6 +64,10 @@ public class User {
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "volunteer_id")
 	private Volunteer volunteer;
+	
+	@OneToMany(mappedBy = "user")
+	@JsonIgnore
+	private List<Login> logins = new ArrayList<>();
 
 	public void setFrom(User newUser){
 		this.firstname = newUser.getFirstname();
@@ -67,5 +75,13 @@ public class User {
 		this.email = newUser.getEmail();
 		this.password = newUser.getPassword();
 		this.role = newUser.getRole();
+	}
+
+	public String getPassword(){
+		return this.password;
+	}
+
+	public String getEmail(){
+		return this.email;
 	}
 }
