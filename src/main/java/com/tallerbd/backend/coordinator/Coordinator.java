@@ -38,7 +38,6 @@ public class Coordinator{
 	private String institution;
 	
 	@OneToOne(mappedBy = "coordinator", cascade = CascadeType.ALL)
-	@JoinColumn(name = "user_id")
 	@JsonIgnore
 	private User user;
 

@@ -58,7 +58,6 @@ public class Volunteer{
     private List<Requirement> requirements = new ArrayList<>();
 
     @OneToOne(mappedBy = "volunteer", cascade = CascadeType.ALL)
-	@JoinColumn(name = "user_id")
 	@JsonIgnore
     private User user;
     

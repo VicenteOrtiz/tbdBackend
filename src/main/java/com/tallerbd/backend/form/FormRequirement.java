@@ -31,10 +31,10 @@ public class FormRequirement{
     private String name;
 
     @Column(name = "minRange")
-    private String minRange;
+    private int minRange;
 
     @Column(name = "maxRange")
-    private String maxRange;
+    private int maxRange;
 
     @ManyToOne
     @JoinColumn(name="form_id")

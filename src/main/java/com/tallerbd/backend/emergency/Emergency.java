@@ -41,8 +41,6 @@ public class Emergency{
     @Column(name = "location")
     private String location;
 
-    //formulario
-
     // @ManyToOne
     // @JoinColumn(name="coordinator_id")
     // private Coordinator creator;
