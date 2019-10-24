@@ -45,10 +45,10 @@ public class Volunteer{
     @JsonFormat(pattern = "yy-MM-dd")
     private LocalDate birth;
 
-    @Column(name = "latitude")
+    @Column(name = "latitude") // need to fix for postGIS
     private Float latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "longitude") // need to fix for postGIS
     private Float longitude;
 
     @OneToMany(mappedBy = "volunteer")

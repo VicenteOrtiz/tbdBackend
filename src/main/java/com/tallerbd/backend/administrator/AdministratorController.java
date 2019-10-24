@@ -56,7 +56,7 @@ public class AdministratorController{
 
     @GetMapping("/{user_id}")
     public ResponseEntity getAdminUserById(@PathVariable Long user_id){
-        User target = userRepository.findById(user_id).get();
+        User target = userRepository.findById(user_id).orElse(null);
         if( target == null ){
             return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
         }else{
@@ -71,17 +71,17 @@ public class AdministratorController{
         }
     }
     
-    @GetMapping("/user/{id}")
-    public ResponseEntity setAdminRoleToUser(@PathVariable Long id){
-        User target = userRepository.findById(id).get();
+    // @GetMapping("/user/{id}")
+    // public ResponseEntity setAdminRoleToUser(@PathVariable Long id){
+    //     User target = userRepository.findById(id).orElse(null);
 
-        checkOrCreateAdminRole();
+    //     checkOrCreateAdminRole();
 
-        Role admin = roleRepository.findByName(this.roleName);
-        target.setRole(admin);
+    //     Role admin = roleRepository.findByName(this.roleName);
+    //     target.setRole(admin);
         
-        return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
-    }
+    //     return new ResponseEntity<>(userRepository.save(target), HttpStatus.OK);
+    // }
 
     @PostMapping()
     public ResponseEntity createAdmin(@RequestBody User user){

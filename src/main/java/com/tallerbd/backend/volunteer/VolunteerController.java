@@ -27,7 +27,7 @@ public class VolunteerController{
     
     private final String roleName = "volunteer";
 
-    private final String defaultPassword = "password1234";
+    private final String defaultPassword = "thegame";
 	
 	private final VolunteerRepository volunteerRepository;
 
@@ -68,7 +68,7 @@ public class VolunteerController{
     
     @GetMapping("/{user_id}")
 	public ResponseEntity getVolunteerById(@PathVariable Long user_id) {
-		User target = userRepository.findById(user_id).get();
+		User target = userRepository.findById(user_id).orElse(null);
         if( target == null ){
             return new ResponseEntity<>("User Volunteer not found", HttpStatus.BAD_REQUEST);
         }else{
@@ -109,25 +109,23 @@ public class VolunteerController{
             volunteer.setBirth( volunteerDTO.getBirth() );
             volunteer.setLatitude( volunteerDTO.getLatitude() );
             volunteer.setLongitude( volunteerDTO.getLongitude() );
-            // set dimensions
-            // set requirements
+
+            volunteerRepository.save( volunteer);
             volunteer.setUser( user );
 
             // set volunteer to user
             user.setVolunteer( volunteer );
 
-            userRepository.save( user );
+            //userRepository.save( user );
 
             // link and save dimensions
             for( Dimension dimensions : volunteerDTO.getDimensions() ){
-                volunteer.getDimensions().add( dimensions );
-                dimensionRepository.save( dimensions );
+                volunteer.getDimensions().add( dimensionRepository.save( dimensions ) );
             }
 
             // link and save requirements
             for( Requirement requirement : volunteerDTO.getRequirements() ){
-                volunteer.getRequirements().add( requirement );
-                requirementRepository.save( requirement );
+                volunteer.getRequirements().add( requirementRepository.save( requirement ) );
             }
 
 			return new ResponseEntity<>( userRepository.save( user ) , HttpStatus.CREATED);

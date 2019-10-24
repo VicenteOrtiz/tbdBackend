@@ -53,7 +53,7 @@ public class CoordinatorController{
 	
 	@GetMapping("/{user_id}")
 	public ResponseEntity getCoordinatorById(@PathVariable Long user_id) {
-		User target = userRepository.findById(user_id).get();
+		User target = userRepository.findById(user_id).orElse(null);
         if( target == null ){
             return new ResponseEntity<>("User Coordinator not found", HttpStatus.BAD_REQUEST);
         }else{
@@ -90,9 +90,6 @@ public class CoordinatorController{
 
 				user.setCoordinator( coordinator );
 				coordinator.setUser( user );
-
-				// set null volunteer because role
-				user.setVolunteer( null );
 				
 				return new ResponseEntity<>( userRepository.save( user ) , HttpStatus.CREATED);
 			}else{
@@ -106,7 +103,7 @@ public class CoordinatorController{
 	@PostMapping("/{id}")
 	public ResponseEntity updateCoordinator(@RequestBody Coordinator newCoordinator, @PathVariable Long id){
 		if( coordinatorRepository.findByInstitution( newCoordinator.getInstitution() ) == null ){
-			Coordinator target = coordinatorRepository.findById(id).get();
+			Coordinator target = coordinatorRepository.findById(id).orElse(null);
 			if( target == null ){
 				return new ResponseEntity<>("Coordinator not Found", HttpStatus.BAD_REQUEST);
 			}else{

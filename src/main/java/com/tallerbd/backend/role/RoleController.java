@@ -40,7 +40,7 @@ public class RoleController {
 	@GetMapping("/{id}")
 	@ResponseBody
 	public ResponseEntity getById(@PathVariable Long id) {
-		Role target = roleRepository.findById(id).get();
+		Role target = roleRepository.findById(id).orElse(null);
 		if( target == null ){
 			return new ResponseEntity<>("Role not Found", HttpStatus.BAD_REQUEST);
 		}else{
@@ -61,7 +61,7 @@ public class RoleController {
 
 	@GetMapping("/revoke/{user_id}")
     public ResponseEntity revokeRoleToUser(@PathVariable Long user_id){
-        User target = userRepository.findById(user_id).get();
+        User target = userRepository.findById(user_id).orElse(null);
 
         target.setRole(null);
         
@@ -81,7 +81,7 @@ public class RoleController {
 	@PostMapping("/{id}")
 	@ResponseBody
 	public ResponseEntity update(@RequestBody Role newRole, @PathVariable Long id){
-		Role target = roleRepository.findById(id).get();
+		Role target = roleRepository.findById(id).orElse(null);
 		if( target == null ){
 			return new ResponseEntity<>("Role not Found", HttpStatus.BAD_REQUEST);
 		}else{

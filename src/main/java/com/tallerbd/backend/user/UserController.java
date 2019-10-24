@@ -46,7 +46,7 @@ public class UserController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity getUserById(@PathVariable Long id) {
-		User target = userRepository.findById(id).get();
+		User target = userRepository.findById(id).orElse(null);
         if( target == null ){
             return new ResponseEntity<>("User not Found", HttpStatus.BAD_REQUEST);
         }else{
@@ -69,7 +69,7 @@ public class UserController {
 	
 	@PostMapping("/{id}")
 	public ResponseEntity updateUser(@PathVariable Long id, @RequestBody User newUser) {
-		User target = userRepository.findById(id).get();
+		User target = userRepository.findById(id).orElse(null);
         if( target == null ){
             return new ResponseEntity<>("User not Found", HttpStatus.BAD_REQUEST);
         }else{
