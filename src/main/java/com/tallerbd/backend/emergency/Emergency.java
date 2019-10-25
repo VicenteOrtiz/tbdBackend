@@ -39,7 +39,7 @@ public class Emergency{
     private String inCharge;
 
     @Column(name = "location")
-    private String location;
+    private String location; // cambiar para usar con postgis
 
     // @ManyToOne
     // @JoinColumn(name="coordinator_id")

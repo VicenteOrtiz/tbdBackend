@@ -47,7 +47,7 @@ public class EmergencyController{
         }else{
             return new ResponseEntity<>(emergency, HttpStatus.OK);
         }
-    }
+	}
 
     @PostMapping()
     public ResponseEntity createEmergency(@RequestBody EmergencyDTO emergencyDTO){
@@ -58,7 +58,7 @@ public class EmergencyController{
         emergency.setInCharge( emergencyDTO.getInCharge() );
         emergency.setLocation( emergencyDTO.getLocation() );
         
-        emergencyRepository.save(emergency);
+        emergency = emergencyRepository.save(emergency);
 
         // link and save tasks
         for( Task task : emergencyDTO.getTasks() ){
@@ -68,13 +68,19 @@ public class EmergencyController{
         }
 
         emergency.setForm(null);
-
-        // link and save formRequirements
-        // for( FormRequirement requirement : emergencyDTO.getFormRequirements() ){
-        //     emergency.getFormRequirements().add( requirement );
-        //     formRequirementRepository.save(requirement);
-        // }
-        //return new ResponseEntity<>( emergencyRepository.save(emergency), HttpStatus.OK);
         return new ResponseEntity<>( emergency, HttpStatus.OK);
-    }
+	}
+	
+    @PostMapping("/add-task/{emergency_id}")
+    public ResponseEntity addTaskToEmergency(@RequestBody Task task, @PathVariable("emergency_id") Long emergency_id){
+		Emergency emergency = emergencyRepository.findById(emergency_id).orElse(null);
+		if( emergency == null ){
+			return new ResponseEntity<>( "an emergency with that id does not exist", HttpStatus.BAD_REQUEST);
+		}else{
+			emergency.getTasks().add( task );
+            task.setEmergency(emergency);
+            taskRepository.save(task);
+			return new ResponseEntity<>( emergency, HttpStatus.OK);
+		}
+	}
 }

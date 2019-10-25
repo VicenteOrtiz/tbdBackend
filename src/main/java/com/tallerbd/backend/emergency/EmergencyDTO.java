@@ -18,7 +18,7 @@ public class EmergencyDTO{
 
     private String inCharge;
 
-    private String location;
+    private String location; // cambiar para usar con postgis
 
     // private String creatorId;
 
