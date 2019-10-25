@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FormDTO{;
+public class FormDTO{
 
     private int neededGender;
     

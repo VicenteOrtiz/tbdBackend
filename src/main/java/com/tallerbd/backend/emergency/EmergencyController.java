@@ -1,6 +1,10 @@
 package com.tallerbd.backend.emergency;
 
 import com.tallerbd.backend.form.Form;
+import com.tallerbd.backend.form.FormDTO;
+import com.tallerbd.backend.form.FormEquipment;
+import com.tallerbd.backend.form.FormEquipmentRepository;
+import com.tallerbd.backend.form.FormRepository;
 import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.form.FormRequirementRepository;
 import com.tallerbd.backend.task.Task;
@@ -26,16 +30,26 @@ public class EmergencyController{
 
     private final TaskRepository taskRepository;
 
+    private final FormRepository formRepository;
+
     private final FormRequirementRepository formRequirementRepository;
 
-    public EmergencyController(EmergencyRepository emergencyRepository, TaskRepository taskRepository, FormRequirementRepository formRequirementRepository){
+    private final FormEquipmentRepository formEquipmentRepository;
+
+    public EmergencyController(EmergencyRepository emergencyRepository,
+            TaskRepository taskRepository,
+            FormRequirementRepository formRequirementRepository,
+            FormEquipmentRepository formEquipmentRepository,
+            FormRepository formRepository){
         this.emergencyRepository = emergencyRepository;
         this.taskRepository = taskRepository;
         this.formRequirementRepository = formRequirementRepository;
+        this.formEquipmentRepository = formEquipmentRepository;
+        this.formRepository = formRepository;
     }
 
     @GetMapping()
-	public ResponseEntity getAllEmergencies(@RequestParam(value = "page") int page, @RequestParam(value = "quantity") int quantity){
+	public ResponseEntity getAllEmergencies(){
 		return new ResponseEntity<>(emergencyRepository.findAll(), HttpStatus.OK);
     }
 
@@ -43,7 +57,7 @@ public class EmergencyController{
 	public ResponseEntity getEmergencyById(@PathVariable("id") Long id) {
         Emergency emergency = emergencyRepository.findById(id).orElse(null);
         if( emergency == null ){
-            return new ResponseEntity<>("Emergency id not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>( "an emergency with that id does not exist", HttpStatus.BAD_REQUEST);
         }else{
             return new ResponseEntity<>(emergency, HttpStatus.OK);
         }
@@ -82,5 +96,40 @@ public class EmergencyController{
             taskRepository.save(task);
 			return new ResponseEntity<>( emergency, HttpStatus.OK);
 		}
-	}
+    }
+    
+    @PostMapping("/link-form/{emergency_id}")
+    public ResponseEntity linkFormToEmergency(@RequestBody FormDTO formDTO, @PathVariable("emergency_id") Long emergency_id){
+
+        Emergency emergency = emergencyRepository.findById(emergency_id).orElse(null);
+
+        if( emergency == null ){
+            return new ResponseEntity<>( "an emergency with that id does not exist", HttpStatus.BAD_REQUEST);
+        }else{
+
+            Form form = new Form();
+            form.setNeededGender( formDTO.getNeededGender() );
+
+            form.setEmergency(emergency);
+            form = formRepository.save(form);
+
+            // link and save requirement
+            for( FormRequirement requirement : formDTO.getFormRequirements() ){
+                form.getFormRequirements().add( requirement );
+                // requirement.setForm(form);
+                formRequirementRepository.save(requirement);
+            }
+
+            // link and save equipment
+            for( FormEquipment equipment : formDTO.getFormEquipment() ){
+                form.getFormEquipment().add( equipment );
+                // equipment.setForm(form);
+                formEquipmentRepository.save( equipment );
+            }
+
+            emergency.setForm(form);
+
+            return new ResponseEntity<>( emergencyRepository.save(emergency), HttpStatus.OK);
+        }
+    }
 }
