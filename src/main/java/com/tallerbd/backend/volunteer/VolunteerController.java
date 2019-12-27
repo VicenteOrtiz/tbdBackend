@@ -2,12 +2,17 @@ package com.tallerbd.backend.volunteer;
 
 import com.tallerbd.backend.dimension.Dimension;
 import com.tallerbd.backend.dimension.DimensionRepository;
+import com.tallerbd.backend.location.Location;
+import com.tallerbd.backend.location.LocationRepository;
 import com.tallerbd.backend.requirement.Requirement;
 import com.tallerbd.backend.requirement.RequirementRepository;
 import com.tallerbd.backend.role.Role;
 import com.tallerbd.backend.role.RoleRepository;
 import com.tallerbd.backend.user.User;
 import com.tallerbd.backend.user.UserRepository;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,17 +43,21 @@ public class VolunteerController{
     private final DimensionRepository dimensionRepository;
 
     private final RequirementRepository requirementRepository;
+
+    private final LocationRepository locationRepository;
     
     public VolunteerController ( VolunteerRepository volunteerRepository,
         UserRepository userRepository,
         RoleRepository roleRepository,
         DimensionRepository dimensionRepository,
-        RequirementRepository requirementRepository){
+        RequirementRepository requirementRepository,
+        LocationRepository locationRepository){
 		this.volunteerRepository = volunteerRepository;
 		this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.dimensionRepository = dimensionRepository;
         this.requirementRepository = requirementRepository;
+        this.locationRepository = locationRepository;
     }
     
     private void checkOrCreateVolunteerRole(){
@@ -107,8 +116,20 @@ public class VolunteerController{
             // set basic volunteer atributes
             volunteer.setGender( volunteerDTO.getGender() );
             volunteer.setBirth( volunteerDTO.getBirth() );
-            volunteer.setLatitude( volunteerDTO.getLatitude() );
-            volunteer.setLongitude( volunteerDTO.getLongitude() );
+            // volunteer.setLatitude( volunteerDTO.getLatitude() );
+            // volunteer.setLongitude( volunteerDTO.getLongitude() );
+
+
+            // point creation
+            Location location = new Location();
+            location.setGeometry(volunteerDTO.getLatitude(), volunteerDTO.getLongitude());
+
+            locationRepository.save(location);
+
+            volunteer.setLocation( location );
+
+
+
 
             volunteerRepository.save( volunteer);
             volunteer.setUser( user );

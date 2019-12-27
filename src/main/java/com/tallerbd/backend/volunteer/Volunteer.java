@@ -20,8 +20,10 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.dimension.Dimension;
+import com.tallerbd.backend.location.Location;
 import com.tallerbd.backend.requirement.Requirement;
 import com.tallerbd.backend.user.User;
+import com.vividsolutions.jts.geom.Point;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,11 +47,15 @@ public class Volunteer{
     @JsonFormat(pattern = "yy-MM-dd")
     private LocalDate birth;
 
-    @Column(name = "latitude") // need to fix for postGIS
-    private Float latitude;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="location_id")
+    private Location location;
 
-    @Column(name = "longitude") // need to fix for postGIS
-    private Float longitude;
+    // @Column(name = "latitude") // need to fix for postGIS
+    // private Float latitude;
+
+    // @Column(name = "longitude") // need to fix for postGIS
+    // private Float longitude;
 
     @OneToMany(mappedBy = "volunteer")
     private List<Dimension> dimensions = new ArrayList<>();

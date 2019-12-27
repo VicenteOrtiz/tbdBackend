@@ -77,6 +77,22 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- postGIS -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>com.vividsolutions</groupId>
+			<artifactId>jts</artifactId>
+			<version>1.13</version>
+		</dependency> -->
+		<dependency>
+    		<groupId>com.bedatadriven</groupId>
+    		<artifactId>jackson-datatype-jts</artifactId>
+    		<version>2.4</version>
+		</dependency>
+
 
 		<!-- <dependency>
     		<groupId>io.jsonwebtoken</groupId>
