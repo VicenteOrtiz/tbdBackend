@@ -44,7 +44,7 @@ public class Volunteer{
     private int gender;
 
     @Column(name = "birth")
-    @JsonFormat(pattern = "yy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -72,6 +72,6 @@ public class Volunteer{
     }
 
     public void setBirth(String birth){
-        this.birth = LocalDate.parse(birth, DateTimeFormatter.ofPattern("yy-MM-dd"));
+        this.birth = LocalDate.parse(birth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }
