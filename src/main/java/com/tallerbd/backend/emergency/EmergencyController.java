@@ -1,5 +1,8 @@
 package com.tallerbd.backend.emergency;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tallerbd.backend.form.Form;
 import com.tallerbd.backend.form.FormDTO;
 import com.tallerbd.backend.form.FormEquipment;
@@ -7,6 +10,8 @@ import com.tallerbd.backend.form.FormEquipmentRepository;
 import com.tallerbd.backend.form.FormRepository;
 import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.form.FormRequirementRepository;
+import com.tallerbd.backend.location.Location;
+import com.tallerbd.backend.location.LocationRepository;
 import com.tallerbd.backend.task.Task;
 import com.tallerbd.backend.task.TaskRepository;
 
@@ -18,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -36,16 +40,20 @@ public class EmergencyController{
 
     private final FormEquipmentRepository formEquipmentRepository;
 
+    private final LocationRepository locationRepository ;
+
     public EmergencyController(EmergencyRepository emergencyRepository,
             TaskRepository taskRepository,
             FormRequirementRepository formRequirementRepository,
             FormEquipmentRepository formEquipmentRepository,
-            FormRepository formRepository){
+            FormRepository formRepository,
+            LocationRepository locationRepository){
         this.emergencyRepository = emergencyRepository;
         this.taskRepository = taskRepository;
         this.formRequirementRepository = formRequirementRepository;
         this.formEquipmentRepository = formEquipmentRepository;
         this.formRepository = formRepository;
+        this.locationRepository = locationRepository;
     }
 
     @GetMapping()
@@ -61,28 +69,55 @@ public class EmergencyController{
         }else{
             return new ResponseEntity<>(emergency, HttpStatus.OK);
         }
-	}
+    }
+    
+    private EmergencyDTO generateResponse( Emergency emergency,List<Task> tasks){
+
+        EmergencyDTO response = new EmergencyDTO();
+
+        response.setId( emergency.getId() );
+        response.setTitle( emergency.getTitle() );
+        response.setInCharge( emergency.getInCharge() );
+        response.setLatitude( emergency.getLatitude() );
+        response.setLongitude( emergency.getLongitude() );
+
+        response.setTasks( tasks );
+
+        return response;
+    }
 
     @PostMapping()
     public ResponseEntity createEmergency(@RequestBody EmergencyDTO emergencyDTO){
 
+        // create emergency
         Emergency emergency = new Emergency();
+
         // set base emergency atributes
         emergency.setTitle( emergencyDTO.getTitle() );
         emergency.setInCharge( emergencyDTO.getInCharge() );
-        emergency.setLocation( emergencyDTO.getLocation() );
+        emergency.setLatitude( emergencyDTO.getLatitude() );
+        emergency.setLongitude( emergencyDTO.getLongitude() );
         
+        // location creation
+        Location location = new Location();
+        location.setPoint(emergencyDTO.getLatitude(), emergencyDTO.getLongitude());
+
+        location = locationRepository.save(location);
+
+        emergency.setLocation( location );
+
+        emergency.setForm(null);
+
         emergency = emergencyRepository.save(emergency);
 
         // link and save tasks
+        List<Task> tasksAux = new ArrayList<>();
         for( Task task : emergencyDTO.getTasks() ){
-            emergency.getTasks().add( task );
             task.setEmergency(emergency);
             taskRepository.save(task);
+            tasksAux.add( task );
         }
-
-        emergency.setForm(null);
-        return new ResponseEntity<>( emergency, HttpStatus.OK);
+        return new ResponseEntity<>( generateResponse( emergency, tasksAux), HttpStatus.OK);
 	}
 	
     @PostMapping("/add-task/{emergency_id}")

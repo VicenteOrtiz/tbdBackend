@@ -13,12 +13,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmergencyDTO{
+
+    private Long id;
     
     private String title;
 
     private String inCharge;
 
-    private String location; // cambiar para usar con postgis
+    private Float longitude;
+
+    private Float latitude;
 
     // private String creatorId;
 
