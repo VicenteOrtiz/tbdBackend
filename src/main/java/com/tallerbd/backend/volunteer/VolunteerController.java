@@ -116,13 +116,13 @@ public class VolunteerController{
             // set basic volunteer atributes
             volunteer.setGender( volunteerDTO.getGender() );
             volunteer.setBirth( volunteerDTO.getBirth() );
-            // volunteer.setLatitude( volunteerDTO.getLatitude() );
-            // volunteer.setLongitude( volunteerDTO.getLongitude() );
+            volunteer.setLatitude( volunteerDTO.getLatitude() );
+            volunteer.setLongitude( volunteerDTO.getLongitude() );
 
 
             // point creation
             Location location = new Location();
-            location.setGeometry(volunteerDTO.getLatitude(), volunteerDTO.getLongitude());
+            location.setPoint(volunteerDTO.getLatitude(), volunteerDTO.getLongitude());
 
             locationRepository.save(location);
 

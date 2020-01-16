@@ -47,15 +47,15 @@ public class Volunteer{
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
 
+    @Column(name = "latitude") // to use on front
+    private Float latitude;
+
+    @Column(name = "longitude") // to use on front
+    private Float longitude;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="location_id")
     private Location location;
-
-    // @Column(name = "latitude") // need to fix for postGIS
-    // private Float latitude;
-
-    // @Column(name = "longitude") // need to fix for postGIS
-    // private Float longitude;
 
     @OneToMany(mappedBy = "volunteer")
     private List<Dimension> dimensions = new ArrayList<>();
