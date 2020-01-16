@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-spatial</artifactId>
-		</dependency>
+        </dependency>
 		<!-- <dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>
@@ -104,6 +104,20 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency> -->
 	</dependencies>
+
+
+	<!-- From hibernatespatial-->
+	<repositories>
+            <repository>
+                    <id>OSGEO GeoTools repo</id>
+                    <url>http://download.osgeo.org/webdav/geotools</url>
+            </repository>
+            <repository>
+                    <id>Hibernate Spatial repo</id>
+                    <url>http://www.hibernatespatial.org/repository</url>
+            </repository>
+
+    </repositories>
 
 	<build>
 		<plugins>
