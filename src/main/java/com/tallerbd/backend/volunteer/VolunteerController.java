@@ -1,5 +1,8 @@
 package com.tallerbd.backend.volunteer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tallerbd.backend.dimension.Dimension;
 import com.tallerbd.backend.dimension.DimensionRepository;
 import com.tallerbd.backend.location.Location;
@@ -10,9 +13,6 @@ import com.tallerbd.backend.role.Role;
 import com.tallerbd.backend.role.RoleRepository;
 import com.tallerbd.backend.user.User;
 import com.tallerbd.backend.user.UserRepository;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +90,30 @@ public class VolunteerController{
 			}
         }
     }
+
+    private VolunteerDTO generateResponse( 
+        User user,
+        Volunteer volunteer,
+        List<Dimension> dimensions,
+        List<Requirement> requirements){
+
+        VolunteerDTO response = new VolunteerDTO();
+
+        response.setId( user.getId() );
+        response.setFirstname( user.getFirstname() );
+        response.setLastname( user.getLastname() );
+        response.setEmail( user.getEmail() );
+
+        response.setGender( volunteer.getGender() );
+        response.setBirth( volunteer.getBirth().toString() );
+        response.setLatitude( volunteer.getLatitude() );
+        response.setLongitude( volunteer.getLongitude() );
+
+        response.setDimensions( dimensions );
+        response.setRequirements( requirements );
+
+        return response;
+    }
     
     @PostMapping()
     @ResponseBody
@@ -124,32 +148,41 @@ public class VolunteerController{
             Location location = new Location();
             location.setPoint(volunteerDTO.getLatitude(), volunteerDTO.getLongitude());
 
-            locationRepository.save(location);
+            location = locationRepository.save(location);
 
             volunteer.setLocation( location );
 
-
-
-
-            volunteerRepository.save( volunteer);
+            volunteer = volunteerRepository.save( volunteer);
             volunteer.setUser( user );
 
             // set volunteer to user
             user.setVolunteer( volunteer );
 
             //userRepository.save( user );
-
+            
             // link and save dimensions
-            for( Dimension dimensions : volunteerDTO.getDimensions() ){
-                volunteer.getDimensions().add( dimensionRepository.save( dimensions ) );
+            List<Dimension> dimensionsAux = new ArrayList<>();
+
+            for( Dimension dimension : volunteerDTO.getDimensions() ){
+                //volunteer.getDimensions().add( dimension );
+                dimension.setVolunteer( volunteer );
+                dimension = dimensionRepository.save( dimension );
+                dimensionsAux.add( dimension );
             }
 
             // link and save requirements
+            List<Requirement> requirementAux = new ArrayList<>();
+
             for( Requirement requirement : volunteerDTO.getRequirements() ){
-                volunteer.getRequirements().add( requirementRepository.save( requirement ) );
+                //volunteer.getRequirements().add( requirement );
+                requirement.setVolunteer( volunteer );
+                requirementRepository.save( requirement );
+                requirementAux.add( requirement );
             }
 
-			return new ResponseEntity<>( userRepository.save( user ) , HttpStatus.CREATED);
+            user = userRepository.save( user );
+            
+            return new ResponseEntity<>( generateResponse(user, volunteer, dimensionsAux, requirementAux) , HttpStatus.CREATED);
 		}else{
 			return new ResponseEntity<>("An User with that email already exist", HttpStatus.BAD_REQUEST);
 		}
