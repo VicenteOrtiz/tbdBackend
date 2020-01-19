@@ -219,6 +219,7 @@ public class VolunteerController{
             // borrar luego (ver emergency entity)
 
             // intersect with volunteer points
+            // this aproach is not optimized
             checkOrCreateVolunteerRole();
             Role volunteer = roleRepository.findByName(this.roleName);
             List<User> voluntarios = volunteer.getUsers();

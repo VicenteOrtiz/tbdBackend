@@ -13,6 +13,10 @@ import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.form.FormRequirementRepository;
 import com.tallerbd.backend.task.Task;
 import com.tallerbd.backend.task.TaskRepository;
+import com.tallerbd.backend.user.User;
+import com.tallerbd.backend.user.UserRepository;
+import com.tallerbd.backend.volunteer.Volunteer;
+import com.tallerbd.backend.volunteer.VolunteerRepository;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -43,16 +47,24 @@ public class EmergencyController{
 
     private final FormEquipmentRepository formEquipmentRepository;
 
+    private final VolunteerRepository volunteerRepository;
+    
+    private final UserRepository userRepository;
+
     public EmergencyController(EmergencyRepository emergencyRepository,
             TaskRepository taskRepository,
             FormRequirementRepository formRequirementRepository,
             FormEquipmentRepository formEquipmentRepository,
-            FormRepository formRepository){
+            FormRepository formRepository,
+            VolunteerRepository volunteerRepository,
+            UserRepository userRepository){
         this.emergencyRepository = emergencyRepository;
         this.taskRepository = taskRepository;
         this.formRequirementRepository = formRequirementRepository;
         this.formEquipmentRepository = formEquipmentRepository;
         this.formRepository = formRepository;
+        this.volunteerRepository = volunteerRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping()
@@ -173,4 +185,46 @@ public class EmergencyController{
         }
     }
 
+    @GetMapping("/{user_id}/{search_radius}")
+    public ResponseEntity searchEmergenciesNearby(@PathVariable("user_id") Long user_id, @PathVariable("search_radius") Double search_radius){
+        User user = userRepository.findById(user_id).orElse(null);
+        if( user == null ){
+            return new ResponseEntity<>("User not Found", HttpStatus.BAD_REQUEST);
+        }else{
+            Volunteer volunteer = volunteerRepository.findById( user.getVolunteer().getId() ).orElse(null);
+            if( volunteer == null ){
+                return new ResponseEntity<>("User Volunteer not found", HttpStatus.BAD_REQUEST);
+            }else{
+                // get volunteer location
+                Point volunteerLocation = volunteer.getLocation();
+
+                // generate shape
+                WebMercatorSINGLETON factory = WebMercatorSINGLETON.getDefaultFactory();
+
+                GeometricShapeFactory shapeFactory = new GeometricShapeFactory( factory.getGeometryFactory() );
+
+                shapeFactory.setCentre( new Coordinate(volunteerLocation.getX(), volunteerLocation.getY() ) );
+                shapeFactory.setSize( 2 * search_radius );
+                shapeFactory.setNumPoints(100);
+
+                Polygon searchArea = shapeFactory.createCircle();
+                // nota: al generar el area no se si los puntos se generan con las proporciones del mercator
+
+                // intersect with emergency points
+                // this aproach is not optimized
+                List<Emergency> emergencies = emergencyRepository.findAll();
+                
+                List<EmergencyDTO> enElArea = new ArrayList<>();
+                for (Emergency emergency : emergencies) {
+                    Point emergencyLocation = emergency.getLocation();
+                    if( searchArea.contains(emergencyLocation)){
+                        EmergencyDTO emergenciaBonita = generateResponse(emergency, emergency.getTasks() );
+                        enElArea.add(emergenciaBonita);
+                    }
+                }
+
+                return new ResponseEntity<>(enElArea, HttpStatus.OK);
+            }
+        }
+    }
 }
