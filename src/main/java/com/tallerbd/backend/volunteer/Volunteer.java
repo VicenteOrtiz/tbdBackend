@@ -20,7 +20,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.dimension.Dimension;
-import com.tallerbd.backend.location.Location;
+// import com.tallerbd.backend.location.Location;
 import com.tallerbd.backend.requirement.Requirement;
 import com.tallerbd.backend.user.User;
 import com.vividsolutions.jts.geom.Point;
@@ -47,15 +47,18 @@ public class Volunteer{
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
 
-    @Column(name = "latitude") // to use on front
-    private Float latitude;
+    // @Column(name = "latitude") // to use on front
+    // private Double latitude;
 
-    @Column(name = "longitude") // to use on front
-    private Float longitude;
+    // @Column(name = "longitude") // to use on front
+    // private Double longitude;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="location_id")
-    private Location location;
+    // @OneToOne(cascade = CascadeType.ALL)
+    // @JoinColumn(name="location_id")
+    // private Location location;
+
+    @Column(name="location")
+    private Point location;
 
     @OneToMany(mappedBy = "volunteer")
     private List<Dimension> dimensions = new ArrayList<>();

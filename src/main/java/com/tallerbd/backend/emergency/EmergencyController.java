@@ -3,6 +3,7 @@ package com.tallerbd.backend.emergency;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tallerbd.backend.WebMercatorSINGLETON.WebMercatorSINGLETON;
 import com.tallerbd.backend.form.Form;
 import com.tallerbd.backend.form.FormDTO;
 import com.tallerbd.backend.form.FormEquipment;
@@ -10,10 +11,12 @@ import com.tallerbd.backend.form.FormEquipmentRepository;
 import com.tallerbd.backend.form.FormRepository;
 import com.tallerbd.backend.form.FormRequirement;
 import com.tallerbd.backend.form.FormRequirementRepository;
-import com.tallerbd.backend.location.Location;
-import com.tallerbd.backend.location.LocationRepository;
 import com.tallerbd.backend.task.Task;
 import com.tallerbd.backend.task.TaskRepository;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,20 +43,16 @@ public class EmergencyController{
 
     private final FormEquipmentRepository formEquipmentRepository;
 
-    private final LocationRepository locationRepository ;
-
     public EmergencyController(EmergencyRepository emergencyRepository,
             TaskRepository taskRepository,
             FormRequirementRepository formRequirementRepository,
             FormEquipmentRepository formEquipmentRepository,
-            FormRepository formRepository,
-            LocationRepository locationRepository){
+            FormRepository formRepository){
         this.emergencyRepository = emergencyRepository;
         this.taskRepository = taskRepository;
         this.formRequirementRepository = formRequirementRepository;
         this.formEquipmentRepository = formEquipmentRepository;
         this.formRepository = formRepository;
-        this.locationRepository = locationRepository;
     }
 
     @GetMapping()
@@ -78,8 +77,10 @@ public class EmergencyController{
         response.setId( emergency.getId() );
         response.setTitle( emergency.getTitle() );
         response.setInCharge( emergency.getInCharge() );
-        response.setLatitude( emergency.getLatitude() );
-        response.setLongitude( emergency.getLongitude() );
+        // response.setLatitude( emergency.getLatitude() );
+        // response.setLongitude( emergency.getLongitude() );
+        response.setLongitude( emergency.getLocation().getX() );
+        response.setLatitude( emergency.getLocation().getY() );
 
         response.setTasks( tasks );
 
@@ -95,18 +96,22 @@ public class EmergencyController{
         // set base emergency atributes
         emergency.setTitle( emergencyDTO.getTitle() );
         emergency.setInCharge( emergencyDTO.getInCharge() );
-        emergency.setLatitude( emergencyDTO.getLatitude() );
-        emergency.setLongitude( emergencyDTO.getLongitude() );
+        // emergency.setLatitude( emergencyDTO.getLatitude() );
+        // emergency.setLongitude( emergencyDTO.getLongitude() );
         
-        // location creation
-        Location location = new Location();
-        location.setPoint(emergencyDTO.getLatitude(), emergencyDTO.getLongitude());
+        // point creation
+        WebMercatorSINGLETON factory = WebMercatorSINGLETON.getDefaultFactory();
 
-        location = locationRepository.save(location);
+        emergency.setLocation( factory.generatePoint(emergencyDTO.getLatitude(), emergencyDTO.getLongitude() ) );
+        
+        // Location location = new Location();
+        // location.setPoint(emergencyDTO.getLatitude(), emergencyDTO.getLongitude());
 
-        emergency.setLocation( location );
+        // location = locationRepository.save(location);
 
-        emergency.setForm(null);
+        // emergency.setLocation( location );
+
+        // emergency.setForm(null);
 
         emergency = emergencyRepository.save(emergency);
 
@@ -167,4 +172,5 @@ public class EmergencyController{
             return new ResponseEntity<>( emergencyRepository.save(emergency), HttpStatus.OK);
         }
     }
+
 }

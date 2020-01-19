@@ -20,9 +20,9 @@ public class EmergencyDTO{
 
     private String inCharge;
 
-    private Float longitude;
+    private Double longitude;
 
-    private Float latitude;
+    private Double latitude;
 
     // private String creatorId;
 

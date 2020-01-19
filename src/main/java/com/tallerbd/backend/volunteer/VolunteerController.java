@@ -3,16 +3,21 @@ package com.tallerbd.backend.volunteer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tallerbd.backend.WebMercatorSINGLETON.WebMercatorSINGLETON;
 import com.tallerbd.backend.dimension.Dimension;
 import com.tallerbd.backend.dimension.DimensionRepository;
-import com.tallerbd.backend.location.Location;
-import com.tallerbd.backend.location.LocationRepository;
+import com.tallerbd.backend.emergency.Emergency;
+import com.tallerbd.backend.emergency.EmergencyRepository;
 import com.tallerbd.backend.requirement.Requirement;
 import com.tallerbd.backend.requirement.RequirementRepository;
 import com.tallerbd.backend.role.Role;
 import com.tallerbd.backend.role.RoleRepository;
 import com.tallerbd.backend.user.User;
 import com.tallerbd.backend.user.UserRepository;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,20 +49,20 @@ public class VolunteerController{
 
     private final RequirementRepository requirementRepository;
 
-    private final LocationRepository locationRepository;
+    private final EmergencyRepository emergencyRepository;
     
     public VolunteerController ( VolunteerRepository volunteerRepository,
         UserRepository userRepository,
         RoleRepository roleRepository,
         DimensionRepository dimensionRepository,
         RequirementRepository requirementRepository,
-        LocationRepository locationRepository){
+        EmergencyRepository emergencyRepository){
 		this.volunteerRepository = volunteerRepository;
 		this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.dimensionRepository = dimensionRepository;
         this.requirementRepository = requirementRepository;
-        this.locationRepository = locationRepository;
+        this.emergencyRepository = emergencyRepository;
     }
     
     private void checkOrCreateVolunteerRole(){
@@ -106,8 +111,11 @@ public class VolunteerController{
 
         response.setGender( volunteer.getGender() );
         response.setBirth( volunteer.getBirth().toString() );
-        response.setLatitude( volunteer.getLatitude() );
-        response.setLongitude( volunteer.getLongitude() );
+        // response.setLatitude( volunteer.getLatitude() );
+        // response.setLongitude( volunteer.getLongitude() );
+        // response.setLocation( volunteer.getLocation());
+        response.setLongitude( volunteer.getLocation().getX() );
+        response.setLatitude( volunteer.getLocation().getY() );
 
         response.setDimensions( dimensions );
         response.setRequirements( requirements );
@@ -140,17 +148,13 @@ public class VolunteerController{
             // set basic volunteer atributes
             volunteer.setGender( volunteerDTO.getGender() );
             volunteer.setBirth( volunteerDTO.getBirth() );
-            volunteer.setLatitude( volunteerDTO.getLatitude() );
-            volunteer.setLongitude( volunteerDTO.getLongitude() );
+            // volunteer.setLatitude( volunteerDTO.getLatitude() );
+            // volunteer.setLongitude( volunteerDTO.getLongitude() );
 
 
             // point creation
-            Location location = new Location();
-            location.setPoint(volunteerDTO.getLatitude(), volunteerDTO.getLongitude());
-
-            location = locationRepository.save(location);
-
-            volunteer.setLocation( location );
+            volunteer.setLocation( WebMercatorSINGLETON.getDefaultFactory()
+                        .generatePoint(volunteerDTO.getLatitude(), volunteerDTO.getLongitude() ) );
 
             volunteer = volunteerRepository.save( volunteer);
             volunteer.setUser( user );
@@ -188,8 +192,47 @@ public class VolunteerController{
 		}
     }
     
-    // @PostMapping("/test")
-    // public ResponseEntity test(@RequestBody String json){
-    //     return new ResponseEntity<>( json , HttpStatus.CREATED);
-    // }
+    @GetMapping("/{emergency_id}/{emergency_radius}")
+    public ResponseEntity getVolunteersInEmergencyRadius(@PathVariable("emergency_id") Long emergency_id, @PathVariable("emergency_radius") Double emergency_radius){
+        Emergency emergency = emergencyRepository.findById(emergency_id).orElse(null);
+        if( emergency == null ){
+            return new ResponseEntity<>( "an emergency with that id does not exist", HttpStatus.BAD_REQUEST);
+        }else{
+            // get emergency location
+            // Location location = emergency.getLocation();
+            Point emergencyLocation = emergency.getLocation();
+
+            // generate shape
+            WebMercatorSINGLETON factory = WebMercatorSINGLETON.getDefaultFactory();
+
+            GeometricShapeFactory shapeFactory = new GeometricShapeFactory( factory.getGeometryFactory() );
+
+            shapeFactory.setCentre( new Coordinate(emergencyLocation.getX(), emergencyLocation.getY() ) );
+            shapeFactory.setSize( 2 * emergency_radius );
+            shapeFactory.setNumPoints(100);
+
+            Polygon emergencyArea = shapeFactory.createCircle();
+            // nota: al generar el area no se si los puntos se generan con las proporciones del mercator
+
+            emergency.setArea( emergencyArea );
+            emergency = emergencyRepository.save(emergency);
+            // borrar luego (ver emergency entity)
+
+            // intersect with volunteer points
+            checkOrCreateVolunteerRole();
+            Role volunteer = roleRepository.findByName(this.roleName);
+            List<User> voluntarios = volunteer.getUsers();
+            
+            List<VolunteerDTO> enElArea = new ArrayList<>();
+            for (User user : voluntarios) {
+                Point userLocation = user.getVolunteer().getLocation();
+                if( emergencyArea.contains(userLocation)){
+                    VolunteerDTO voluntarioBonito = generateResponse(user, user.getVolunteer(), user.getVolunteer().getDimensions(), user.getVolunteer().getRequirements() );
+                    enElArea.add(voluntarioBonito);
+                }
+            }
+
+            return new ResponseEntity<>(enElArea, HttpStatus.OK);
+        }
+    }
 }

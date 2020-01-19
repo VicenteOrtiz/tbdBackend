@@ -14,11 +14,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tallerbd.backend.form.Form;
-import com.tallerbd.backend.form.FormRequirement;
-import com.tallerbd.backend.location.Location;
+// import com.tallerbd.backend.location.Location;
 import com.tallerbd.backend.task.Task;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,15 +41,22 @@ public class Emergency{
     @Column(name = "inCharge")
     private String inCharge;
 
-    @Column(name = "latitude") // to use on front
-    private Float latitude;
+    // @Column(name = "latitude") // to use on front
+    // private Double latitude;
 
-    @Column(name = "longitude") // to use on front
-    private Float longitude;
+    // @Column(name = "longitude") // to use on front
+    // private Double longitude;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="location_id")
-    private Location location;
+    // @OneToOne(cascade = CascadeType.ALL)
+    // @JoinColumn(name="location_id")
+    // private Location location;
+
+    @Column(name="location")
+    private Point location;
+
+    @Column(name="area")
+    private Polygon area;
+    // borrar luego (ver volunteer controller)
 
     // @ManyToOne
     // @JoinColumn(name="coordinator_id")

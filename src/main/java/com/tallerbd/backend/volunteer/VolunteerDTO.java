@@ -22,9 +22,9 @@ public class VolunteerDTO extends UserDTO{
 
     private String birth;
 
-    private Float longitude;
+    private Double longitude;
 
-    private Float latitude;
+    private Double latitude;
 
     private List<Dimension> dimensions = new ArrayList<>();
 
