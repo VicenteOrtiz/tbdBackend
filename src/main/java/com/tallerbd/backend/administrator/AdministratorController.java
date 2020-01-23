@@ -1,9 +1,9 @@
 package com.tallerbd.backend.administrator;
 
-import com.tallerbd.backend.role.Role;
-import com.tallerbd.backend.role.RoleRepository;
-import com.tallerbd.backend.user.User;
-import com.tallerbd.backend.user.UserRepository;
+import com.tallerbd.backend.firstdb.domain.Role; 
+import com.tallerbd.backend.firstdb.repo.RoleRepository;
+import com.tallerbd.backend.firstdb.domain.User;
+import com.tallerbd.backend.firstdb.repo.UserRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
